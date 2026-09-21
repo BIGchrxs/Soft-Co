@@ -1,0 +1,62 @@
+## Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+publish/
+*.dll
+*.pdb
+*.exe
+
+## Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.csproj.user
+*.vsidx
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+!packages/build/
+project.lock.json
+project.fragment.lock.json
+
+## Secrets and local config — never commit these
+appsettings.*.local.json
+appsettings.Local.json
+*.pfx
+*.key
+*.pem
+secrets.json
+.env
+.env.*
+
+## Runtime data written by the app (keep out of source control)
+App_Data/
+PrivateUploads/
+uploads/
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+
+## OS noise
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+## Node (only if a front-end island is added later)
+node_modules/
+npm-debug.log*
