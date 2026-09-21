@@ -39,6 +39,8 @@ appsettings.Local.json
 secrets.json
 .env
 .env.*
+# ...but the template must be committed - it documents which variables a deployment needs.
+!.env.example
 
 ## Runtime data written by the app (keep out of source control)
 App_Data/
