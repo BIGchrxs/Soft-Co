@@ -1,0 +1,58 @@
+@model SoftCo.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in — Soft &amp; Co.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;500&display=swap" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="sc-login-body">
+    <main class="sc-login">
+        <div class="sc-login-card">
+            <div class="sc-login-head">
+                @* Wordmark stands in for the supplied logo asset — see wwwroot/img/brand/README.md *@
+                <span class="sc-brand-word">Soft&amp;Co.</span>
+                <span class="sc-brand-sub">Operations</span>
+            </div>
+
+            <form method="post" class="sc-login-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <div asp-validation-summary="ModelOnly" class="sc-errors"></div>
+
+                <div>
+                    <label class="form-label" asp-for="Email">Email address</label>
+                    <input class="form-control" asp-for="Email" autocomplete="username" autofocus />
+                    <span asp-validation-for="Email" class="sc-error"></span>
+                </div>
+
+                <div>
+                    <label class="form-label" asp-for="Password">Password</label>
+                    <input class="form-control" type="password" asp-for="Password" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="sc-error"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary sc-login-submit">Sign in</button>
+            </form>
+        </div>
+
+        <p class="sc-login-foot">Crafted with intent</p>
+    </main>
+
+    @* This page sets Layout = null, so it does not inherit _Layout's script block - jQuery has
+       to be loaded here explicitly or jquery.validate throws "jQuery is not defined" and
+       client-side validation silently does nothing. *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

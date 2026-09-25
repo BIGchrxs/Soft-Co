@@ -1,0 +1,11 @@
+@model SoftCo.Models.SettlementStatus
+@using SoftCo.Models
+@{
+    var cls = Model switch
+    {
+        SettlementStatus.Paid => "sc-badge sc-badge-solid",
+        SettlementStatus.PartPaid => "sc-badge sc-badge-part",
+        _ => "sc-badge"
+    };
+}
+<span class="@cls">@Model.Label()</span>

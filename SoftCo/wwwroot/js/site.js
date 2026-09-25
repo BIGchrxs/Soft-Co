@@ -1,4 +1,31 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+// Soft & Co. — shell behaviour.
+// Below the sidebar breakpoint the navigation folds into a header strip and
+// this toggles the nav open. Delegated from document so it survives any future
+// re-render of the header.
+document.addEventListener('click', function (e) {
+    var toggle = e.target.closest('#scNavToggle');
+    if (!toggle) return;
 
-// Write your JavaScript code.
+    var body = document.getElementById('scSidebarBody');
+    if (!body) return;
+
+    var open = body.classList.toggle('show');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+
+// Progressive enhancement: without JavaScript every payment column remains visible.
+var paymentToggle = document.getElementById('scPaymentToggle');
+var ordersTable = document.getElementById('scOrdersTable');
+if (paymentToggle && ordersTable) {
+    paymentToggle.hidden = false;
+    ordersTable.classList.add('sc-payments-collapsed');
+    paymentToggle.addEventListener('click', function () {
+        var collapsed = ordersTable.classList.toggle('sc-payments-collapsed');
+        paymentToggle.setAttribute('aria-pressed', collapsed ? 'false' : 'true');
+        paymentToggle.textContent = collapsed ? 'Show payment columns' : 'Hide payment columns';
+    });
+}
+
+document.querySelectorAll('.sc-nav a.active').forEach(function (link) {
+    link.setAttribute('aria-current', 'page');
+});

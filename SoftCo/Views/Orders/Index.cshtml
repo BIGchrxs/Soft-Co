@@ -1,0 +1,166 @@
+@model SoftCo.ViewModels.OrderListViewModel
+@using SoftCo.Models
+@{
+    ViewData["Title"] = "Order tracker";
+    ViewData["Description"] = "Every order, from production to arrival.";
+    var activeOrders = Model.Rows.Count(r => r.Fulfilment != FulfilmentStatus.Delivered);
+    var missingDetails = Model.Rows.Count(r => string.IsNullOrWhiteSpace(r.Projects) || string.IsNullOrWhiteSpace(r.InvoiceRef) || r.InvoiceValueForeign <= 0);
+}
+
+@await Html.PartialAsync("_Flash")
+
+<div class="sc-kpis">
+    <div class="sc-kpi">
+        <p class="sc-label">Order value</p>
+        <p class="sc-kpi-value">R @Model.TotalInvoicedZar.ToString("N2")</p>
+        <p class="sc-kpi-caption">Recorded invoice value in Rand</p>
+    </div>
+    <div class="sc-kpi">
+        <p class="sc-label">Active orders</p>
+        <p class="sc-kpi-value">@activeOrders.ToString("D2") <span class="sc-kpi-of">/ @Model.Rows.Count total</span></p>
+        <p class="sc-kpi-caption">In production through to clearance</p>
+    </div>
+    <div class="sc-kpi">
+        <p class="sc-label">Supplier partners</p>
+        <p class="sc-kpi-value">@Model.Rows.Select(r => r.Supplier).Distinct().Count().ToString("D2")</p>
+        <p class="sc-kpi-caption">Suppliers represented in this view</p>
+    </div>
+</div>
+
+<div class="sc-section-heading">
+    <div><h2>Supplier orders</h2><span class="sc-count">@Model.Rows.Count orders</span></div>
+    @if (User.IsInRole(SoftCo.Data.Roles.Admin) || User.IsInRole(SoftCo.Data.Roles.Procurement) || User.IsInRole(SoftCo.Data.Roles.Finance))
+    {
+        <a class="btn btn-primary" asp-action="Create"><span aria-hidden="true">＋</span> New order</a>
+    }
+</div>
+
+<div class="sc-order-panel">
+    <form method="get" class="sc-order-filters">
+        <div class="sc-search-row">
+            <div class="sc-search-field">
+                <label class="visually-hidden" for="f-search">Search orders</label>
+                <input class="form-control" id="f-search" name="Search" value="@Model.Filter.Search" placeholder="Search supplier, product or invoice…" />
+            </div>
+            <button type="submit" class="btn btn-secondary">Search</button>
+            @if (Model.Filter.IsActive)
+            {
+                <a class="sc-clear" asp-action="Index">Clear filters</a>
+            }
+        </div>
+        <details class="sc-filter-disclosure" open="@(Model.Filter.IsActive)">
+            <summary>Filter orders <span class="sc-muted">by supplier, project or status</span></summary>
+            <div class="sc-filters">
+                <div class="sc-filter">
+                    <label class="form-label" for="f-supplier">Supplier</label>
+                    <select class="form-select" id="f-supplier" name="SupplierId">
+                        <option value="">All suppliers</option>
+                        @foreach (var s in Model.Suppliers)
+                        {
+                            <option value="@s.Id" selected="@(Model.Filter.SupplierId == s.Id)">@s.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="sc-filter">
+                    <label class="form-label" for="f-project">Project</label>
+                    <select class="form-select" id="f-project" name="ProjectId">
+                        <option value="">All projects</option>
+                        @foreach (var p in Model.Projects)
+                        {
+                            <option value="@p.Id" selected="@(Model.Filter.ProjectId == p.Id)">@p.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="sc-filter">
+                    <label class="form-label" for="f-fulfil">Delivery</label>
+                    <select class="form-select" id="f-fulfil" name="Fulfilment">
+                        <option value="">All stages</option>
+                        @foreach (FulfilmentStatus fs in Enum.GetValues<FulfilmentStatus>())
+                        {
+                            <option value="@fs" selected="@(Model.Filter.Fulfilment == fs)">@fs.Label()</option>
+                        }
+                    </select>
+                </div>
+                <div class="sc-filter">
+                    <label class="form-label" for="f-settle">Settlement</label>
+                    <select class="form-select" id="f-settle" name="Settlement">
+                        <option value="">All payment statuses</option>
+                        @foreach (SettlementStatus ss in Enum.GetValues<SettlementStatus>())
+                        {
+                            <option value="@ss" selected="@(Model.Filter.Settlement == ss)">@ss.Label()</option>
+                        }
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Apply filters</button>
+            </div>
+        </details>
+    </form>
+
+    <div class="sc-table-toolbar">
+        <p>@(Model.Filter.IsActive ? "Filtered orders · summaries reflect these results" : "All orders")</p>
+        <button type="button" class="sc-text-button" id="scPaymentToggle" aria-pressed="false" aria-controls="scOrdersTable" hidden>Show payment columns</button>
+    </div>
+    @if (Model.Rows.Count == 0)
+    {
+        <div class="sc-empty">
+            <h2>@(Model.Filter.IsActive ? "No matching orders" : "Your orders start here")</h2>
+            <p>@(Model.Filter.IsActive ? "Try a different search or clear your filters to see all orders." : "Add your first supplier order to track its production, delivery and payments.")</p>
+            @if (Model.Filter.IsActive) { <a asp-action="Index" class="btn btn-secondary">Clear filters</a> }
+        </div>
+    }
+    else
+    {
+        <div class="sc-table-wrap" id="scOrdersTable" tabindex="0" role="region" aria-label="Supplier orders, scroll horizontally for more columns">
+            <table class="sc-table sc-order-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Supplier / product</th>
+                        <th scope="col">Project</th>
+                        <th scope="col">Cargo ready</th>
+                        <th scope="col" class="sc-num">Invoice value</th>
+                        <th scope="col">Delivery</th>
+                        <th scope="col">Settlement</th>
+                        <th scope="col" class="sc-financial-column">Invoice reference / date</th>
+                        <th scope="col" class="sc-num sc-financial-column">Deposit</th>
+                        <th scope="col" class="sc-num sc-financial-column">Settlement paid</th>
+                        <th scope="col" class="sc-num sc-financial-column">Outstanding (ZAR)</th>
+                        <th scope="col"><span class="visually-hidden">Order details</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr>
+                            <td class="sc-supplier-cell"><a asp-action="Details" asp-route-id="@r.Id">@r.Supplier</a><span class="sc-cell-sub">@r.Product</span></td>
+                            <td class="sc-project-cell">@(string.IsNullOrWhiteSpace(r.Projects) ? "Not assigned" : r.Projects)</td>
+                            <td class="sc-date-cell">@(r.CargoReadiness?.ToString("dd MMM yyyy") ?? "Not confirmed")</td>
+                            <td class="sc-num">
+                                @if (r.InvoiceValueForeign > 0)
+                                {
+                                    <span>R @r.InvoiceValueZar.ToString("N2")</span>
+                                    <span class="sc-cell-sub">@r.InvoiceValueForeign.ToString("N2") @r.CurrencyCode</span>
+                                }
+                                else { <span class="sc-muted">Awaiting invoice</span> }
+                            </td>
+                            <td><span class="sc-delivery sc-delivery-@r.Fulfilment.ToString().ToLowerInvariant()"><span class="sc-status-dot" aria-hidden="true"></span>@r.Fulfilment.Label()</span></td>
+                            <td>
+                                @if (r.InvoiceValueForeign <= 0) { <span class="sc-muted">Not invoiced</span> }
+                                else { @await Html.PartialAsync("_SettlementBadge", r.Settlement) }
+                            </td>
+                            <td class="sc-financial-column">@(r.InvoiceRef ?? "Not recorded")<span class="sc-cell-sub">@(r.InvoiceDate?.ToString("dd MMM yyyy") ?? "Date not recorded")</span></td>
+                            <td class="sc-num sc-financial-column">@r.DepositForeign.ToString("N2") <span class="sc-cur">@r.CurrencyCode</span></td>
+                            <td class="sc-num sc-financial-column">@r.SettlementForeign.ToString("N2") <span class="sc-cur">@r.CurrencyCode</span></td>
+                            <td class="sc-num sc-financial-column">@r.OutstandingZar.ToString("N2")</td>
+                            <td><a class="sc-row-link" asp-action="Details" asp-route-id="@r.Id" aria-label="View @r.Supplier order: @r.Product">View</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <div class="sc-table-foot"><span>@Model.Rows.Count orders@(Model.Filter.IsActive ? " in this view" : " in your tracker")</span><span>All summary amounts in ZAR</span></div>
+</div>
+@if (missingDetails > 0)
+{
+    <p class="sc-data-note">@missingDetails @(missingDetails == 1 ? "order has" : "orders have") an unassigned project or incomplete invoice details. Open an order to review it.</p>
+}

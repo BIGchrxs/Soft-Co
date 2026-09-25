@@ -1,0 +1,36 @@
+@model SoftCo.Models.Project
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "New project" : "Edit project";
+}
+
+<div class="sc-card">
+    <form method="post" asp-action="@(isNew ? "Create" : "Edit")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="sc-errors"></div>
+
+        <div class="sc-form-grid">
+            <div>
+                <label class="form-label" asp-for="Code">Code</label>
+                <input class="form-control" asp-for="Code" placeholder="FAIRMONT" />
+                <span asp-validation-for="Code" class="sc-error"></span>
+            </div>
+            <div>
+                <label class="form-label" asp-for="Name">Name</label>
+                <input class="form-control" asp-for="Name" placeholder="Fairmont" />
+                <span asp-validation-for="Name" class="sc-error"></span>
+            </div>
+        </div>
+
+        <div style="margin-top:1rem">
+            <label class="sc-check"><input type="checkbox" asp-for="IsActive" /> <span>Active</span></label>
+        </div>
+
+        <hr class="sc-rule" />
+        <button type="submit" class="btn btn-primary">@(isNew ? "Add project" : "Save changes")</button>
+        <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

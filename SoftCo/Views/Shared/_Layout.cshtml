@@ -1,47 +1,101 @@
-﻿<!DOCTYPE html>
+@using SoftCo.Data
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    string Active(string c, params string[] actions) =>
+        string.Equals(controller, c, StringComparison.OrdinalIgnoreCase)
+        && (actions.Length == 0 || actions.Any(a => string.Equals(action, a, StringComparison.OrdinalIgnoreCase)))
+            ? "active" : "";
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Soft &amp; Co</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] — Soft &amp; Co.</title>
+
+    @* Manrope is the brand's sans-serif face. Cremore (the primary display face) is not
+       licensed as a web font here yet, so Cormorant Garamond carries the display stack -
+       see the note at the top of site.css. *@
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;500&display=swap" />
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SoftCo.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Soft &amp; Co</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+    <a class="sc-skip-link" href="#main-content">Skip to content</a>
+    <div class="sc-shell">
+
+        <aside class="sc-sidebar">
+            <div class="sc-sidebar-head">
+                <a class="sc-brand" asp-controller="Orders" asp-action="Index">
+                    @* Interim wordmark. The brand guide states the logo must never be redrawn,
+                       so the supplied asset replaces this - see wwwroot/img/brand/README.md. *@
+                    <span class="sc-brand-word">Soft&amp;Co.</span>
+                    <span class="sc-brand-sub">Order management</span>
+                </a>
+                <button class="sc-nav-toggle" type="button" id="scNavToggle" aria-expanded="false" aria-controls="scSidebarBody">
+                    Menu
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+            <div class="sc-sidebar-body" id="scSidebarBody">
+                <p class="sc-nav-label">Workspace</p>
+                <ul class="sc-nav">
+                    <li><a class="@Active("Orders", "Index", "Details", "Edit", "Create", "RecordPayment")" asp-controller="Orders" asp-action="Index"><span class="sc-nav-icon" aria-hidden="true">▤</span>Order tracker</a></li>
+                    <li><a class="@Active("Orders", "Outstanding")" asp-controller="Orders" asp-action="Outstanding"><span class="sc-nav-icon" aria-hidden="true">◷</span>Outstanding</a></li>
+                </ul>
+
+                <ul class="sc-nav">
+                    <li><a class="@Active("Suppliers")" asp-controller="Suppliers" asp-action="Index"><span class="sc-nav-icon" aria-hidden="true">♧</span>Suppliers</a></li>
+                    <li><a class="@Active("Projects")" asp-controller="Projects" asp-action="Index"><span class="sc-nav-icon" aria-hidden="true">▱</span>Projects</a></li>
+                </ul>
+            </div>
+
+            <div class="sc-sidebar-foot">
+                <p class="sc-sidebar-note">Considered in every detail.<span>Soft&amp;Co. operations</span></p>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="sc-user">@User.Identity.Name</span>
+                    <form method="post" asp-controller="Account" asp-action="Logout" class="sc-logout">
+                        @Html.AntiForgeryToken()
+                        <button type="submit">Sign out</button>
+                    </form>
+                }
+                else
+                {
+                    <span>Crafted with intent</span>
+                }
+            </div>
+        </aside>
+
+        <div class="sc-main">
+            <header class="sc-topbar">
+                <span>Workspace <span class="sc-breadcrumb-divider">/</span> @ViewData["Title"]</span>
+                <span>International orders</span>
+            </header>
+
+            <main id="main-content" role="main" class="sc-content" tabindex="-1">
+                <div class="sc-page-heading">
+                    <h1>@ViewData["Title"]</h1>
+                    @if (ViewData["Description"] is string description)
+                    {
+                        <p>@description</p>
+                    }
+                </div>
+                @RenderBody()
+            </main>
+
+            <footer class="sc-footer">
+                <span>Soft&amp;Co. / International order tracker</span>
+                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </footer>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Soft &amp; Co - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

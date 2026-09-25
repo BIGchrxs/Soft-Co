@@ -1,0 +1,58 @@
+@model List<SoftCo.Models.Project>
+@using SoftCo.Data
+@{
+    ViewData["Title"] = "Projects";
+    ViewData["Description"] = "Keep every project's orders in view.";
+    var exposure = ViewBag.Exposure as Dictionary<int, decimal> ?? new();
+    var counts = ViewBag.Counts as Dictionary<int, int> ?? new();
+}
+
+@await Html.PartialAsync("_Flash")
+
+<div class="sc-kpis">
+    <div class="sc-kpi"><p class="sc-label">Active projects</p><p class="sc-kpi-value">@Model.Count(p => p.IsActive).ToString("D2")</p><p class="sc-kpi-caption">Projects currently in the register</p></div>
+    <div class="sc-kpi"><p class="sc-label">With orders</p><p class="sc-kpi-value">@Model.Count(p => counts.GetValueOrDefault(p.Id) > 0).ToString("D2")</p><p class="sc-kpi-caption">Projects with linked supplier orders</p></div>
+    <div class="sc-kpi"><p class="sc-label">With outstanding balances</p><p class="sc-kpi-value">@Model.Count(p => exposure.GetValueOrDefault(p.Id) > 0).ToString("D2")</p><p class="sc-kpi-caption">Projects with a recorded balance due</p></div>
+</div>
+
+<div class="sc-card">
+    <div class="sc-card-head">
+        <p class="sc-label" style="margin-bottom:0">@Model.Count projects</p>
+        @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Procurement) || User.IsInRole(Roles.Finance))
+        {
+            <a class="btn btn-primary" asp-action="Create">New project</a>
+        }
+    </div>
+
+    <div class="sc-table-wrap">
+        <table class="sc-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th class="sc-num">Orders</th>
+                    <th class="sc-num">Outstanding (ZAR)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.Code</td>
+                    <td><a asp-controller="Orders" asp-action="Index" asp-route-ProjectId="@p.Id">@p.Name</a> @if (!p.IsActive) { <span class="sc-badge">Inactive</span> }</td>
+                    <td class="sc-num">@(counts.TryGetValue(p.Id, out var c) ? c : 0)</td>
+                    <td class="sc-num">@((exposure.TryGetValue(p.Id, out var e) ? e : 0m).ToString("N2"))</td>
+                    <td>
+                        @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Procurement) || User.IsInRole(Roles.Finance))
+                        { <a asp-action="Edit" asp-route-id="@p.Id" aria-label="Edit @p.Name">Edit</a> }
+                    </td>
+                </tr>
+            }
+            @if (Model.Count == 0)
+            { <tr><td colspan="5" class="sc-empty">No projects yet. Add a project to group its supplier orders.</td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>
+<p class="sc-data-note">Shared orders appear under each linked project. Project balances should not be added together.</p>

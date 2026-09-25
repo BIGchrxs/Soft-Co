@@ -1,0 +1,139 @@
+@model SoftCo.ViewModels.OrderEditViewModel
+@using SoftCo.Models
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "New order" : "Edit order";
+}
+
+<div class="sc-card">
+    <form method="post" asp-action="@(isNew ? "Create" : "Edit")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly" class="sc-errors"></div>
+
+        <p class="sc-label">Order</p>
+        <div class="sc-form-grid">
+            <div>
+                <label class="form-label" asp-for="SupplierId"></label>
+                <select class="form-select" asp-for="SupplierId">
+                    <option value="">Select a supplier</option>
+                    @foreach (var s in Model.AllSuppliers)
+                    {
+                        <option value="@s.Id" selected="@(Model.SupplierId == s.Id)">@s.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="SupplierId" class="sc-error"></span>
+            </div>
+
+            <div>
+                <label class="form-label" asp-for="ProductDescription"></label>
+                <input class="form-control" asp-for="ProductDescription" />
+                <span asp-validation-for="ProductDescription" class="sc-error"></span>
+            </div>
+
+            <div>
+                <label class="form-label" asp-for="FulfilmentStatus"></label>
+                <select class="form-select" asp-for="FulfilmentStatus">
+                    @foreach (FulfilmentStatus fs in Enum.GetValues<FulfilmentStatus>())
+                    {
+                        <option value="@fs" selected="@(Model.FulfilmentStatus == fs)">@((int)fs). @fs.Label()</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" asp-for="CargoReadinessDate"></label>
+                <input class="form-control" type="date" asp-for="CargoReadinessDate" />
+            </div>
+        </div>
+
+        <hr class="sc-rule" />
+
+        <p class="sc-label">Projects</p>
+        <p class="sc-muted" style="font-size:.82rem">
+            An order may serve more than one project — tick every project it belongs to.
+        </p>
+        <div class="sc-checks">
+            @foreach (var p in Model.AllProjects)
+            {
+                <label class="sc-check">
+                    <input type="checkbox" name="ProjectIds" value="@p.Id" checked="@(Model.ProjectIds.Contains(p.Id))" />
+                    <span>@p.Name</span>
+                </label>
+            }
+        </div>
+
+        <hr class="sc-rule" />
+
+        <p class="sc-label">Invoice</p>
+        <div class="sc-form-grid">
+            <div>
+                <label class="form-label" asp-for="InvoiceRef"></label>
+                <input class="form-control" asp-for="InvoiceRef" />
+            </div>
+            <div>
+                <label class="form-label" asp-for="InvoiceDate"></label>
+                <input class="form-control" type="date" asp-for="InvoiceDate" />
+            </div>
+            <div>
+                <label class="form-label" asp-for="CurrencyCode"></label>
+                <select class="form-select" asp-for="CurrencyCode">
+                    <option value="CNY" selected="@(Model.CurrencyCode == "CNY")">CNY — Chinese yuan</option>
+                    <option value="USD" selected="@(Model.CurrencyCode == "USD")">USD — US dollar</option>
+                    <option value="EUR" selected="@(Model.CurrencyCode == "EUR")">EUR — Euro</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label" asp-for="ExchangeRate" for="rate"></label>
+                <input class="form-control" type="number" step="0.000001" asp-for="ExchangeRate" id="rate" />
+                <span asp-validation-for="ExchangeRate" class="sc-error"></span>
+            </div>
+            <div>
+                <label class="form-label" asp-for="InvoiceValueForeign" for="foreign"></label>
+                <input class="form-control" type="number" step="0.01" asp-for="InvoiceValueForeign" id="foreign" />
+                <span asp-validation-for="InvoiceValueForeign" class="sc-error"></span>
+            </div>
+            <div>
+                <label class="form-label" asp-for="InvoiceValueZar" for="zar"></label>
+                <input class="form-control" type="number" step="0.01" asp-for="InvoiceValueZar" id="zar" />
+                <span class="sc-hint">Auto-calculated from the rate; override if finance agreed a different Rand figure.</span>
+            </div>
+        </div>
+
+        <div style="margin-top:1rem">
+            <label class="form-label" asp-for="Notes"></label>
+            <textarea class="form-control" asp-for="Notes" rows="3"></textarea>
+        </div>
+
+        <hr class="sc-rule" />
+
+        <button type="submit" class="btn btn-primary">@(isNew ? "Create order" : "Save changes")</button>
+        <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Rand value follows rate x foreign until someone types in the Rand box themselves.
+        (function () {
+            var rate = document.getElementById('rate');
+            var foreign = document.getElementById('foreign');
+            var zar = document.getElementById('zar');
+            if (!rate || !foreign || !zar) return;
+
+            var manual = false;
+            zar.addEventListener('input', function () { manual = true; });
+
+            function recalc() {
+                if (manual) return;
+                var r = parseFloat(rate.value), f = parseFloat(foreign.value);
+                if (!isNaN(r) && !isNaN(f)) zar.value = (r * f).toFixed(2);
+            }
+
+            rate.addEventListener('input', recalc);
+            foreign.addEventListener('input', recalc);
+        })();
+    </script>
+}

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SoftCo.Data;
 using SoftCo.Models;
+using SoftCo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuditService, AuditService>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -90,6 +94,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await SeedData.InitializeAsync(scope.ServiceProvider, app.Configuration, app.Environment);
+    await TrackerSeed.SeedAsync(db, app.Environment);
 }
 
 app.Run();

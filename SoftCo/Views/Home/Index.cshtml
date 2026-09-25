@@ -1,8 +1,78 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@* Theme draft only - no new functionality. This page exists to show the brand
+   system applied to the surfaces the application will actually use: headings,
+   labels and rules, a card, a table, badges and buttons. *@
+
+<div class="sc-card">
+    <p class="sc-label">Brand Identity System</p>
+    <h2>Crafted for the considered home.</h2>
+    <p class="sc-muted">
+        Quality without performance. Warmth without sentimentality. A brand that speaks
+        quietly and means everything it says.
+    </p>
+</div>
+
+<div class="sc-card">
+    <div class="sc-card-head">
+        <p class="sc-label" style="margin-bottom:0">Brand Colours</p>
+        <span class="sc-badge">Option 1</span>
+    </div>
+
+    <div class="sc-table-wrap">
+    <table class="sc-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Hex</th>
+                <th>RGB</th>
+                <th>Use</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="sc-dot-hollow sc-dot"></span>Warm Beige</td>
+                <td>#f8ecd6</td>
+                <td class="sc-num">248, 236, 214</td>
+                <td class="sc-muted">Page field</td>
+            </tr>
+            <tr>
+                <td><span class="sc-dot"></span>Burgundy</td>
+                <td>#552403</td>
+                <td class="sc-num">85, 36, 3</td>
+                <td class="sc-muted">Navigation, headings, primary action</td>
+            </tr>
+            <tr>
+                <td><span class="sc-dot"></span>Shadow</td>
+                <td>#020100</td>
+                <td class="sc-num">2, 1, 0</td>
+                <td class="sc-muted">Body copy, header block</td>
+            </tr>
+            <tr>
+                <td><span class="sc-dot-hollow sc-dot"></span>Titanium White</td>
+                <td>#ffffff</td>
+                <td class="sc-num">255, 255, 255</td>
+                <td class="sc-muted">Cards and input surfaces</td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<div class="sc-card">
+    <p class="sc-label">Typography</p>
+    <h3>Heading — Cremore</h3>
+    <h4>Subheading — Manrope</h4>
+    <p>
+        Body copy goes here. This is our body text for information, descriptions and
+        longer form content, set in Manrope.
+    </p>
+    <p class="sc-quote">“Every room tells a story. Make sure yours is worth reading.”</p>
+
+    <hr class="sc-rule" />
+
+    <button type="button" class="btn btn-primary">Primary action</button>
+    <button type="button" class="btn btn-secondary">Secondary</button>
 </div>

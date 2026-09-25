@@ -1,0 +1,87 @@
+@model SoftCo.ViewModels.RecordPaymentViewModel
+@using SoftCo.Models
+@{
+    ViewData["Title"] = "Record payment";
+}
+
+<div class="sc-card">
+    <p class="sc-label">@Model.OrderSummary</p>
+    <p class="sc-muted">
+        Outstanding: <strong>@Model.OutstandingForeign.ToString("N2") @Model.CurrencyCode</strong>
+        · rate R @Model.ExchangeRate.ToString("N4") per @Model.CurrencyCode
+    </p>
+
+    <hr class="sc-rule" />
+
+    <form method="post" asp-action="RecordPayment">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="SupplierOrderId" />
+        <input type="hidden" asp-for="CurrencyCode" />
+        <input type="hidden" asp-for="ExchangeRate" id="rate" />
+
+        <div asp-validation-summary="ModelOnly" class="sc-errors"></div>
+
+        <div class="sc-form-grid">
+            <div>
+                <label class="form-label" asp-for="Kind"></label>
+                <select class="form-select" asp-for="Kind">
+                    @foreach (PaymentKind k in Enum.GetValues<PaymentKind>())
+                    {
+                        <option value="@k" selected="@(Model.Kind == k)">@k.Label()</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" asp-for="PaidDate"></label>
+                <input class="form-control" type="date" asp-for="PaidDate" />
+            </div>
+
+            <div>
+                <label class="form-label" asp-for="AmountForeign" for="foreign"></label>
+                <input class="form-control" type="number" step="0.01" asp-for="AmountForeign" id="foreign" />
+                <span asp-validation-for="AmountForeign" class="sc-error"></span>
+            </div>
+
+            <div>
+                <label class="form-label" asp-for="AmountZar" for="zar"></label>
+                <input class="form-control" type="number" step="0.01" asp-for="AmountZar" id="zar" />
+                <span class="sc-hint">Leave at the calculated figure unless the bank converted at a different rate.</span>
+            </div>
+
+            <div>
+                <label class="form-label" asp-for="Reference"></label>
+                <input class="form-control" asp-for="Reference" placeholder="Bank reference" />
+            </div>
+        </div>
+
+        <hr class="sc-rule" />
+
+        <button type="submit" class="btn btn-primary">Record payment</button>
+        <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.SupplierOrderId">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var rate = document.getElementById('rate');
+            var foreign = document.getElementById('foreign');
+            var zar = document.getElementById('zar');
+            if (!rate || !foreign || !zar) return;
+
+            var manual = false;
+            zar.addEventListener('input', function () { manual = true; });
+
+            function recalc() {
+                if (manual) return;
+                var r = parseFloat(rate.value), f = parseFloat(foreign.value);
+                if (!isNaN(r) && !isNaN(f)) zar.value = (r * f).toFixed(2);
+            }
+
+            foreign.addEventListener('input', recalc);
+            recalc();
+        })();
+    </script>
+}

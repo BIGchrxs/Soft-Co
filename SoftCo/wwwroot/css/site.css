@@ -1,31 +1,939 @@
+/* ============================================================================
+   Soft & Co. — brand theme
+   Implements "soft&co branding direction - option 1" (Brand Identity System).
+
+   Colours, type and iconography come straight from the deck. Nothing here is
+   invented: every token below is either a brand colour, a brand typeface, or a
+   value derived from one of those by transparency only.
+
+   Brand colours (deck, section 5):
+     Warm Beige      #f8ecd6   rgb(248, 236, 214)
+     Burgundy        #552403   rgb(85, 36, 3)
+     Shadow          #020100   rgb(2, 1, 0)
+     Titanium White  #ffffff   rgb(255, 255, 255)
+
+   Typography (deck, section 6):
+     Primary    Cremore        display / headings
+     Secondary  Manrope        sans-serif use cases (UI, body, labels)
+     Secondary  Book Antiqua   serif use cases (quotations, long form)
+
+   Cremore is not a licensed web font in this project yet, so the display stack
+   names it first and falls back to Cormorant Garamond, which shares its high
+   stroke contrast and open counters. Drop Cremore into wwwroot/fonts and add an
+   @font-face block here when the licence is available — nothing else changes.
+   ---------------------------------------------------------------------------- */
+
+:root {
+    /* Brand palette --------------------------------------------------------- */
+    --sc-beige: #f8ecd6;
+    --sc-burgundy: #552403;
+    --sc-shadow: #020100;
+    --sc-white: #ffffff;
+
+    /* Working palette from the supplied order-tracker reference. */
+    --sc-canvas: #fcfaf7;
+    --sc-surface: #ffffff;
+    --sc-surface-alt: #fbf9f6;
+    --sc-hover: #f4efe7;
+
+    --sc-accent: #552403;
+    --sc-accent-strong: #401b02;
+    --sc-accent-soft: #795b44;
+
+    --sc-sidebar-bg: #f8ecd6;
+    --sc-sidebar-head-bg: #f8ecd6;
+    --sc-sidebar-text: #552403;
+
+    --sc-ink: #332f2b;
+    --sc-ink-soft: #766f65;
+
+    --sc-line: rgba(51, 47, 43, 0.12);
+    --sc-line-strong: rgba(51, 47, 43, 0.22);
+    --sc-line-on-dark: rgba(240, 233, 223, 0.18);
+
+    --sc-beige-deep: #f1e1c4;
+    --sc-beige-soft: #795b44;
+
+    /* Type ------------------------------------------------------------------ */
+    --sc-font-display: "Cremore", "Cormorant Garamond", "Book Antiqua", Palatino, "Palatino Linotype", Georgia, serif;
+    --sc-font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --sc-font-serif: "Book Antiqua", Palatino, "Palatino Linotype", Georgia, serif;
+
+    /* Figures never use the display face - see .sc-kpi-value / .sc-num. */
+    --sc-font-num: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    /* The deck's micro-labels: uppercase, widely tracked, small, never bold. */
+    --sc-tracking-label: 0.18em;
+
+    /* Geometry. The brand's shapes are soft but not rounded-off; the colour
+       swatches in the deck are stadium-shaped, buttons borrow that radius. */
+    --sc-radius: 2px;
+    --sc-radius-pill: 999px;
+
+    --sc-sidebar-w: 208px;
+}
+
+/* ============================================================================
+   Base
+   ---------------------------------------------------------------------------- */
+
 html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    font-size: 15px;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--sc-canvas);
+    color: var(--sc-ink);
+    font-family: var(--sc-font-sans);
+    font-weight: 400;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* Keyboard focus stays visible everywhere — the theme never removes it. */
+:focus-visible {
+    outline: 2px solid var(--sc-accent);
+    outline-offset: 2px;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* ============================================================================
+   Typography
+   "Keep type weights and sizes to a minimal across print and digital. The aim
+   is to achieve elegance and to avoid visual clutter." (deck, section 6)
+   ---------------------------------------------------------------------------- */
+
+h1, .sc-h1,
+h2, .sc-h2,
+h3, .sc-h3 {
+    font-family: var(--sc-font-sans);
+    font-weight: 400;
+    color: var(--sc-accent);
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+    margin: 0 0 0.5rem;
 }
+
+h1, .sc-h1 { font-size: 2rem; letter-spacing: -0.045em; }
+h2, .sc-h2 { font-size: 1.15rem; }
+h3, .sc-h3 { font-size: 1.05rem; }
+
+h4, h5, h6 {
+    font-family: var(--sc-font-sans);
+    font-weight: 500;
+    color: var(--sc-accent);
+    font-size: 1rem;
+    margin: 0 0 0.5rem;
+}
+
+p { margin: 0 0 1rem; }
+
+a {
+    color: var(--sc-accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--sc-line-strong);
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+a:hover {
+    color: var(--sc-accent-strong);
+    border-bottom-color: var(--sc-accent);
+}
+
+/* The deck's recurring device: a small, widely tracked uppercase label sitting
+   above a hairline rule. Used for section headings and table captions. */
+.sc-label {
+    font-family: var(--sc-font-sans);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-accent-soft);
+    margin: 0 0 0.75rem;
+}
+
+.sc-rule {
+    border: 0;
+    border-top: 1px solid var(--sc-line);
+    margin: 1.5rem 0;
+}
+
+/* Serif use case: pull quotes and long-form copy (deck, section 8). */
+.sc-quote {
+    font-family: var(--sc-font-serif);
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--sc-accent);
+}
+
+.sc-muted { color: var(--sc-ink-soft); }
+
+/* ============================================================================
+   Application shell — cream navigation and a light workspace, matching the reference.
+   ---------------------------------------------------------------------------- */
+
+.sc-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* --- Sidebar ------------------------------------------------------------- */
+
+.sc-sidebar {
+    flex: 0 0 var(--sc-sidebar-w);
+    width: var(--sc-sidebar-w);
+    background-color: var(--sc-sidebar-bg);
+    color: var(--sc-sidebar-text);
+    display: flex;
+    flex-direction: column;
+}
+
+/* The header block, as on every numbered page of the deck - lifted off pure black
+   so it reads as a quiet band rather than a hard edge. */
+.sc-sidebar-head {
+    background-color: var(--sc-sidebar-head-bg);
+    padding: 2.1rem 1.5rem 1.8rem;
+}
+
+.sc-brand {
+    display: block;
+    border-bottom: 0;
+    color: var(--sc-sidebar-text);
+}
+
+.sc-brand:hover { color: var(--sc-accent); }
+
+/* Interim wordmark, set in the display face. The official logo is a supplied
+   asset — the brand guide is explicit that it must never be redrawn — so when
+   the EPS/PNG lands in wwwroot/img/brand/, swap this span for an <img>. */
+.sc-brand-word {
+    font-family: var(--sc-font-display);
+    font-size: 2rem;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    display: block;
+}
+
+.sc-brand-sub {
+    font-family: var(--sc-font-sans);
+    font-size: 0.6rem;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-beige-soft);
+    margin-top: 0.55rem;
+    display: block;
+}
+
+.sc-sidebar-body {
+    padding: 1.5rem 0;
+    flex: 1 1 auto;
+}
+
+.sc-nav-label {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-beige-soft);
+    padding: 0 1.5rem;
+    margin: 0 0 0.75rem;
+}
+
+.sc-nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sc-nav a {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin: .25rem .8rem;
+    padding: .65rem .7rem;
+    border-radius: 3px;
+    color: var(--sc-sidebar-text);
+    font-size: 0.88rem;
+    border-bottom: 0;
+    border-left: 2px solid transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.sc-nav a:hover {
+    background-color: #efdfc2;
+    color: var(--sc-accent);
+}
+
+.sc-nav a.active {
+    background-color: var(--sc-burgundy);
+    border-left-color: transparent;
+    color: var(--sc-white);
+}
+
+.sc-sidebar-foot {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--sc-line-on-dark);
+    font-size: 0.68rem;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-beige-soft);
+}
+
+/* --- Main column --------------------------------------------------------- */
+
+.sc-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sc-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.35rem 2.3rem;
+    font-size: .7rem;
+    color: var(--sc-ink-soft);
+    border-bottom: 1px solid var(--sc-line);
+}
+
+.sc-topbar-title {
+    font-family: var(--sc-font-display);
+    font-size: 1.35rem;
+    color: var(--sc-accent);
+    margin: 0;
+}
+
+.sc-content {
+    flex: 1 1 auto;
+    padding: 2rem 2.3rem;
+}
+
+.sc-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 2.3rem;
+    border-top: 1px solid var(--sc-line);
+    font-size: 0.72rem;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-accent-soft);
+}
+
+.sc-footer a { border-bottom: 0; }
+
+/* Shown only below the sidebar breakpoint. */
+.sc-nav-toggle {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--sc-line-strong);
+    border-radius: var(--sc-radius);
+    color: var(--sc-accent);
+    font-family: var(--sc-font-sans);
+    font-size: 0.7rem;
+    letter-spacing: .01em;
+    text-transform: none;
+    padding: 0.45rem 0.9rem;
+}
+
+/* ============================================================================
+   Surfaces
+   ---------------------------------------------------------------------------- */
+
+.sc-card {
+    background-color: var(--sc-surface);
+    border: 1px solid var(--sc-line);
+    border-radius: var(--sc-radius);
+    padding: 1.5rem;
+}
+
+.sc-card + .sc-card { margin-top: 1.25rem; }
+
+.sc-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--sc-line);
+}
+
+.sc-card-head > :last-child { margin-bottom: 0; }
+
+/* ============================================================================
+   Controls
+   ---------------------------------------------------------------------------- */
+
+.btn,
+.sc-btn {
+    font-family: var(--sc-font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: .01em;
+    text-transform: none;
+    border-radius: 3px;
+    padding: .6rem 1rem;
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-primary,
+.sc-btn-primary {
+    background-color: var(--sc-accent);
+    border-color: var(--sc-accent);
+    color: var(--sc-white);
+}
+
+.btn-primary:hover,
+.sc-btn-primary:hover {
+    background-color: var(--sc-accent-strong);
+    border-color: var(--sc-accent-strong);
+    color: var(--sc-white);
+}
+
+.btn-secondary,
+.sc-btn-ghost {
+    background-color: transparent;
+    border-color: var(--sc-line-strong);
+    color: var(--sc-accent);
+}
+
+.btn-secondary:hover,
+.sc-btn-ghost:hover {
+    background-color: var(--sc-accent);
+    border-color: var(--sc-accent);
+    color: var(--sc-white);
+}
+
+.form-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-accent-soft);
+    margin-bottom: 0.35rem;
+}
+
+.form-control,
+.form-select {
+    background-color: var(--sc-white);
+    border: 1px solid var(--sc-line-strong);
+    border-radius: var(--sc-radius);
+    color: var(--sc-ink);
+    font-family: var(--sc-font-sans);
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--sc-white);
+    border-color: var(--sc-accent);
+    box-shadow: none;
+    color: var(--sc-ink);
+}
+
+/* ============================================================================
+   Tables — the workhorse surface for this application
+   ---------------------------------------------------------------------------- */
+
+/* Tables are the one element allowed to be wider than the page, and only inside
+   their own scroller - the body itself must never scroll sideways. */
+.sc-table-wrap {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.sc-table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.sc-table thead th {
+    font-family: var(--sc-font-sans);
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-accent-soft);
+    text-align: left;
+    padding: .85rem;
+    background-color: var(--sc-beige);
+    border-bottom: 1px solid var(--sc-line-strong);
+    white-space: nowrap;
+}
+
+.sc-table tbody td {
+    padding: 0.7rem 0.85rem;
+    border-bottom: 1px solid var(--sc-line);
+    vertical-align: middle;
+}
+
+.sc-table tbody tr:nth-child(even) { background-color: var(--sc-surface-alt); }
+
+.sc-table tbody tr:hover { background-color: var(--sc-hover); }
+
+/* Money and other figures line up on the decimal point. */
+.sc-num {
+    text-align: right;
+    font-family: var(--sc-font-num);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ============================================================================
+   Status marks — monoline and quiet, matching the deck's iconography rules
+   ---------------------------------------------------------------------------- */
+
+.sc-badge {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: .01em;
+    text-transform: none;
+    padding: 0.25rem 0.7rem;
+    border: 1px solid var(--sc-line-strong);
+    border-radius: var(--sc-radius-pill);
+    color: var(--sc-accent);
+    white-space: nowrap;
+}
+
+.sc-badge-solid {
+    background-color: var(--sc-accent);
+    border-color: var(--sc-accent);
+    color: var(--sc-white);
+}
+
+/* The deck marks availability with a filled dot, not a coloured pill. */
+.sc-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--sc-radius-pill);
+    background-color: var(--sc-accent);
+    margin-right: 0.45rem;
+    vertical-align: baseline;
+}
+
+.sc-dot-hollow {
+    background-color: transparent;
+    border: 1px solid var(--sc-accent);
+}
+
+/* ============================================================================
+   Responsive — below 992px the burgundy column folds into a header strip
+   ---------------------------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+    .sc-shell { display: block; }
+
+    .sc-sidebar {
+        width: 100%;
+        flex-basis: auto;
+    }
+
+    .sc-sidebar-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+    }
+
+    .sc-sidebar-body {
+        display: none;
+        padding: 1rem 0;
+        border-top: 1px solid var(--sc-line-on-dark);
+    }
+
+    .sc-sidebar-body.show { display: block; }
+
+    .sc-sidebar-foot { display: none; }
+
+    .sc-nav-toggle {
+        display: inline-block;
+        border-color: var(--sc-line-on-dark);
+        color: var(--sc-sidebar-text);
+    }
+
+    .sc-topbar,
+    .sc-content,
+    .sc-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+
+    h1, .sc-h1 { font-size: 2rem; }
+}
+
+@media (max-width: 575.98px) {
+    .sc-topbar { flex-wrap: wrap; }
+}
+
+/* ============================================================================
+   Application components — tracker screens
+   ---------------------------------------------------------------------------- */
+
+/* --- Flash + validation -------------------------------------------------- */
+
+.sc-flash {
+    background-color: var(--sc-white);
+    border: 1px solid var(--sc-line-strong);
+    border-left: 3px solid var(--sc-accent);
+    border-radius: var(--sc-radius);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.82rem;
+}
+
+.sc-errors:not(:empty) {
+    background-color: var(--sc-white);
+    border: 1px solid var(--sc-accent);
+    border-radius: var(--sc-radius);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    color: var(--sc-accent);
+    font-size: 0.85rem;
+}
+
+.sc-errors ul { margin: 0; padding-left: 1.1rem; }
+
+.sc-error {
+    display: block;
+    color: var(--sc-accent);
+    font-size: 0.78rem;
+    margin-top: 0.25rem;
+}
+
+.sc-hint {
+    display: block;
+    color: var(--sc-ink-soft);
+    font-size: 0.72rem;
+    margin-top: 0.25rem;
+}
+
+/* --- KPI strip ----------------------------------------------------------- */
+
+.sc-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.sc-kpi {
+    background-color: var(--sc-surface);
+    border: 1px solid var(--sc-line);
+    border-radius: var(--sc-radius);
+    padding: 1.3rem 1.4rem;
+}
+
+.sc-kpi .sc-label { margin-bottom: 0.35rem; }
+
+/* Figures use the sans, not the display serif: a column of money has to be
+   scannable and comparable, and lining tabular numerals do that where a
+   high-contrast serif does not. */
+.sc-kpi-value {
+    font-family: var(--sc-font-num);
+    font-size: 1.45rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    color: var(--sc-accent);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.sc-kpi-of {
+    font-family: var(--sc-font-sans);
+    font-size: 0.75rem;
+    color: var(--sc-ink-soft);
+}
+
+/* --- Filters ------------------------------------------------------------- */
+
+.sc-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.sc-filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* --- Forms --------------------------------------------------------------- */
+
+.sc-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem;
+}
+
+.sc-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+}
+
+.sc-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.sc-check input { accent-color: var(--sc-accent); }
+
+.sc-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* --- Definition list (order detail) -------------------------------------- */
+
+.sc-dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1rem 1.5rem;
+    margin: 0;
+}
+
+.sc-dl dt {
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-accent-soft);
+    margin-bottom: 0.2rem;
+}
+
+.sc-dl dd { margin: 0; font-size: 0.92rem; }
+
+.sc-money {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1.25rem;
+}
+
+.sc-money p { margin: 0 0 0.2rem; }
+
+/* --- Stage marker -------------------------------------------------------- */
+
+/* The tracker numbers its delivery stages 1-5; the numeral is the quickest read. */
+.sc-stage {
+    display: inline-block;
+    width: 1.35rem;
+    height: 1.35rem;
+    line-height: 1.25rem;
+    text-align: center;
+    border: 1px solid var(--sc-line-strong);
+    border-radius: var(--sc-radius-pill);
+    font-size: 0.68rem;
+    color: var(--sc-accent);
+    margin-right: 0.35rem;
+}
+
+.sc-cur {
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--sc-ink-soft);
+}
+
+/* Part-paid sits between outline (unpaid) and solid (paid). */
+.sc-badge-part {
+    border-color: var(--sc-accent);
+    background-color: rgba(107, 70, 54, 0.08);
+}
+
+/* --- Tabs ---------------------------------------------------------------- */
+
+.sc-tabs { display: flex; gap: 1.25rem; }
+
+.sc-tabs a {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-accent-soft);
+    border-bottom: 1px solid transparent;
+    padding-bottom: 0.25rem;
+}
+
+.sc-tabs a.active,
+.sc-tabs a:hover {
+    color: var(--sc-accent);
+    border-bottom-color: var(--sc-accent);
+}
+
+/* --- History ------------------------------------------------------------- */
+
+.sc-history { list-style: none; margin: 0; padding: 0; font-size: 0.84rem; }
+
+.sc-history li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--sc-line);
+}
+
+.sc-history li:last-child { border-bottom: 0; }
+
+.sc-history-when {
+    display: inline-block;
+    min-width: 11rem;
+    color: var(--sc-ink-soft);
+    font-family: var(--sc-font-num);
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- Sidebar footer user ------------------------------------------------- */
+
+.sc-user { display: block; text-transform: none; letter-spacing: 0; font-size: 0.78rem; }
+
+.sc-logout { margin-top: 0.4rem; }
+
+.sc-logout button {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: var(--sc-beige-soft);
+    font-family: var(--sc-font-sans);
+    font-size: 0.66rem;
+    letter-spacing: .01em;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.sc-logout button:hover { color: var(--sc-accent); }
+
+/* ============================================================================
+   Sign-in — the one full-bleed brand moment in the application
+   ---------------------------------------------------------------------------- */
+
+.sc-login-body {
+    background-color: var(--sc-sidebar-bg);
+    min-height: 100vh;
+}
+
+.sc-login {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.25rem;
+}
+
+.sc-login-card {
+    width: 100%;
+    max-width: 24rem;
+    background-color: var(--sc-canvas);
+    border-radius: var(--sc-radius);
+    padding: 2.5rem 2rem;
+}
+
+.sc-login-head {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--sc-line);
+}
+
+.sc-login-head .sc-brand-word { color: var(--sc-accent); font-size: 2rem; }
+.sc-login-head .sc-brand-word,
+.sc-brand-word { font-family: var(--sc-font-display); }
+.sc-login-head .sc-brand-sub { color: var(--sc-accent-soft); }
+
+.sc-login-form { display: grid; gap: 1.1rem; }
+
+.sc-login-submit { width: 100%; }
+
+.sc-login-foot {
+    margin: 1.75rem 0 0;
+    font-size: 0.64rem;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--sc-beige-soft);
+}
+
+/* Order workspace */
+.sc-skip-link { position: fixed; top: -100px; left: 1rem; z-index: 100; padding: .6rem 1rem; background: white; }
+.sc-skip-link:focus { top: 1rem; }
+.sc-breadcrumb-divider { padding: 0 .65rem; color: #b7a892; }
+.sc-page-heading { margin-bottom: 1.8rem; }
+.sc-page-heading h1 { margin-bottom: .45rem; }
+.sc-page-heading p { color: var(--sc-ink-soft); font-size: .82rem; margin: 0; }
+.sc-kpi-caption { color: var(--sc-ink-soft); font-size: .72rem; margin: .5rem 0 0; }
+.sc-nav-icon { font-size: 1.1rem; width: 1.1rem; text-align: center; }
+.sc-sidebar-note { font-size: .75rem; color: var(--sc-accent); margin-bottom: 1.5rem; }
+.sc-sidebar-note span { display: block; margin-top: .35rem; font-size: .65rem; color: var(--sc-ink-soft); }
+.sc-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; }
+.sc-section-heading > div { display: flex; align-items: center; gap: .8rem; }
+.sc-section-heading h2 { margin: 0; }
+.sc-count { background: var(--sc-beige); color: var(--sc-accent); padding: .2rem .55rem; border-radius: 3px; font-size: .7rem; }
+.sc-order-panel { background: white; border: 1px solid var(--sc-line); border-radius: 4px; overflow: hidden; }
+.sc-order-filters { padding: 1rem 1.2rem; }
+.sc-search-row { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; }
+.sc-search-field { flex: 1; max-width: 30rem; min-width: 12rem; }
+.sc-search-field .form-control { font-size: .8rem; background: var(--sc-canvas); }
+.sc-clear { font-size: .75rem; }
+.sc-filter-disclosure { margin-top: .85rem; font-size: .78rem; }
+.sc-filter-disclosure summary { cursor: pointer; color: var(--sc-accent); width: fit-content; }
+.sc-filter-disclosure summary span { margin-left: .4rem; font-size: .7rem; }
+.sc-filter-disclosure .sc-filters { padding-top: 1rem; grid-template-columns: repeat(4, minmax(0, 1fr)) auto; }
+.sc-filter-disclosure .form-select { font-size: .78rem; }
+.sc-table-toolbar, .sc-table-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .65rem 1.2rem; color: var(--sc-ink-soft); font-size: .7rem; border-top: 1px solid var(--sc-line); }
+.sc-table-toolbar p { margin: 0; }
+.sc-text-button { color: var(--sc-accent); background: none; border: 0; padding: .2rem 0; text-decoration: underline; text-underline-offset: 3px; font: inherit; cursor: pointer; }
+.sc-order-table { min-width: 920px; font-size: .78rem; }
+.sc-order-table tbody td { padding: 1rem .9rem; }
+.sc-table th.sc-num { text-align: right; }
+.sc-supplier-cell { min-width: 170px; max-width: 230px; }
+.sc-supplier-cell > a { font-weight: 600; border-bottom: 0; }
+.sc-cell-sub { display: block; color: var(--sc-ink-soft); font-size: .69rem; margin-top: .25rem; font-weight: 400; }
+.sc-project-cell { min-width: 105px; max-width: 160px; }
+.sc-date-cell { white-space: nowrap; color: var(--sc-ink-soft); font-size: .73rem; }
+.sc-delivery { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; font-size: .72rem; }
+.sc-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #9b7e50; }
+.sc-delivery-shipping .sc-status-dot, .sc-delivery-clearance .sc-status-dot { background: #637c8a; }
+.sc-delivery-delivered .sc-status-dot { background: #647a50; }
+.sc-row-link { font-size: .7rem; }
+.sc-payments-collapsed .sc-financial-column { display: none; }
+.sc-data-note { color: var(--sc-ink-soft); margin: 1rem 0; font-size: .73rem; }
+.sc-empty { padding: 3.5rem 1.5rem; text-align: center; }
+.sc-empty p { color: var(--sc-ink-soft); font-size: .85rem; }
+.sc-worklist-note { background: var(--sc-beige); color: var(--sc-accent); padding: .85rem 1rem; margin-bottom: 1.25rem; font-size: .78rem; border-radius: 3px; }
+.sc-progress { display: grid; grid-template-columns: repeat(5, 1fr); list-style: none; padding: 0; margin: 0 0 1.5rem; gap: .5rem; }
+.sc-progress li { padding: .8rem .5rem; border-top: 3px solid var(--sc-line); color: var(--sc-ink-soft); font-size: .75rem; }
+.sc-progress .is-complete { border-color: #a79479; color: var(--sc-accent); }
+.sc-progress .is-current { border-color: var(--sc-accent); color: var(--sc-accent); font-weight: 600; }
+@media (min-width: 992px) { .sc-sidebar { position: sticky; top: 0; height: 100vh; } }
+@media (max-width: 1199px) { .sc-filter-disclosure .sc-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 991.98px) {
+    .sc-topbar, .sc-content, .sc-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .sc-nav-toggle { border-color: var(--sc-line-strong); }
+    .sc-sidebar-head { padding: 1rem 1.25rem; }
+    .sc-sidebar-body { padding: .5rem 0; }
+    .sc-brand-word { font-size: 1.7rem; }
+    .sc-kpis { gap: .75rem; }
+}
+@media (max-width: 575.98px) {
+    .sc-kpis { grid-template-columns: 1fr; }
+    .sc-kpi { padding: 1rem 1.2rem; }
+    .sc-topbar > :last-child { display: none; }
+    .sc-section-heading, .sc-card-head { flex-wrap: wrap; align-items: center; }
+    .sc-section-heading > div { flex-wrap: wrap; }
+    .sc-filter-disclosure .sc-filters { grid-template-columns: 1fr; }
+    .sc-filter-disclosure summary span { display: none; }
+    .sc-tabs { flex-wrap: wrap; gap: .8rem; }
+    .sc-progress { grid-template-columns: 1fr; }
+    .sc-progress li { border-top: 0; border-left: 3px solid var(--sc-line); padding: .3rem .8rem; }
+    .sc-table-foot { flex-wrap: wrap; gap: .3rem; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }

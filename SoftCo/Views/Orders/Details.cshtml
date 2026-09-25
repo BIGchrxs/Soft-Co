@@ -1,0 +1,140 @@
+@model SoftCo.Models.SupplierOrder
+@using SoftCo.Models
+@using SoftCo.Data
+@{
+    ViewData["Title"] = Model.Supplier?.Name ?? "Order";
+    var history = ViewBag.History as List<AuditEvent> ?? new List<AuditEvent>();
+}
+
+@await Html.PartialAsync("_Flash")
+
+<ol class="sc-progress" aria-label="Delivery progress">
+    @foreach (FulfilmentStatus stage in Enum.GetValues<FulfilmentStatus>())
+    {
+        <li class="@(stage == Model.FulfilmentStatus ? "is-current" : (int)stage < (int)Model.FulfilmentStatus ? "is-complete" : "")" aria-current="@(stage == Model.FulfilmentStatus ? "step" : null)">@((int)stage). @stage.Label()</li>
+    }
+</ol>
+
+<div class="sc-card">
+    <div class="sc-card-head">
+        <div>
+            <p class="sc-label" style="margin-bottom:.25rem">@Model.Supplier?.Name</p>
+            <h2 style="margin:0">@Model.ProductDescription</h2>
+        </div>
+        <div class="sc-actions">
+            @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Finance))
+            {
+                <a class="btn btn-primary" asp-action="RecordPayment" asp-route-id="@Model.Id">Record payment</a>
+            }
+            @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Procurement) || User.IsInRole(Roles.Finance))
+            {
+                <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+            }
+        </div>
+    </div>
+
+    <dl class="sc-dl">
+        <div><dt>Projects</dt><dd>@(string.Join(", ", Model.OrderProjects.Select(op => op.Project?.Name)) is { Length: > 0 } p ? p : "—")</dd></div>
+        <div><dt>Delivery status</dt><dd><span class="sc-stage">@((int)Model.FulfilmentStatus)</span> @Model.FulfilmentStatus.Label()</dd></div>
+        <div><dt>Cargo readiness</dt><dd>@(Model.CargoReadinessDate?.ToString("dd MMM yyyy") ?? "—")</dd></div>
+        <div><dt>Invoice ref</dt><dd>@(Model.InvoiceRef ?? "—")</dd></div>
+        <div><dt>Invoice date</dt><dd>@(Model.InvoiceDate?.ToString("dd MMM yyyy") ?? "—")</dd></div>
+        <div><dt>Exchange rate</dt><dd>R @Model.ExchangeRate.ToString("N4") per @Model.CurrencyCode</dd></div>
+    </dl>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+        <hr class="sc-rule" />
+        <p class="sc-muted">@Model.Notes</p>
+    }
+</div>
+
+<div class="sc-card">
+    <p class="sc-label">Money</p>
+
+    <div class="sc-money">
+        <div>
+            <p class="sc-label">Invoiced</p>
+            <p class="sc-kpi-value">R @Model.InvoiceValueZar.ToString("N2")</p>
+            <p class="sc-muted">@Model.InvoiceValueForeign.ToString("N2") @Model.CurrencyCode</p>
+        </div>
+        <div>
+            <p class="sc-label">Paid</p>
+            <p class="sc-kpi-value">R @Model.PaidZar.ToString("N2")</p>
+            <p class="sc-muted">@Model.PaidForeign.ToString("N2") @Model.CurrencyCode</p>
+        </div>
+        <div>
+            <p class="sc-label">Outstanding</p>
+            <p class="sc-kpi-value">R @Model.OutstandingZar.ToString("N2")</p>
+            <p class="sc-muted">@Model.OutstandingForeign.ToString("N2") @Model.CurrencyCode</p>
+        </div>
+        <div>
+            <p class="sc-label">Status</p>
+            @await Html.PartialAsync("_SettlementBadge", Model.SettlementStatus)
+        </div>
+    </div>
+
+    <hr class="sc-rule" />
+
+    <p class="sc-label">Payments</p>
+    @if (!Model.Payments.Any())
+    {
+        <p class="sc-muted">Nothing paid against this order yet.</p>
+    }
+    else
+    {
+        <div class="sc-table-wrap">
+            <table class="sc-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Reference</th>
+                        <th class="sc-num">Amount</th>
+                        <th class="sc-num">Amount (ZAR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pay in Model.Payments.OrderBy(x => x.PaidDate))
+                    {
+                        <tr>
+                            <td>@pay.Kind.Label()</td>
+                            <td>@(pay.PaidDate?.ToString("dd MMM yyyy") ?? "—")</td>
+                            <td class="sc-muted">@(pay.Reference ?? "—")</td>
+                            <td class="sc-num">@pay.AmountForeign.ToString("N2") <span class="sc-cur">@Model.CurrencyCode</span></td>
+                            <td class="sc-num">@pay.AmountZar.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="sc-card">
+    <p class="sc-label">History</p>
+    @if (history.Count == 0)
+    {
+        <p class="sc-muted">No recorded changes.</p>
+    }
+    else
+    {
+        <ul class="sc-history">
+            @foreach (var h in history)
+            {
+                <li>
+                    <span class="sc-history-when">@h.OccurredAt.ToString("dd MMM yyyy HH:mm")</span>
+                    <strong>@h.Action</strong>
+                    @if (!string.IsNullOrWhiteSpace(h.FieldName))
+                    {
+                        <span>· @h.FieldName</span>
+                        <span class="sc-muted">@(h.OldValue ?? "—") → @(h.NewValue ?? "—")</span>
+                    }
+                    <span class="sc-muted">· @(h.UserName ?? "system")</span>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+<p><a asp-action="Index">← Back to tracker</a></p>

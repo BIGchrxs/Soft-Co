@@ -1,0 +1,71 @@
+@model SoftCo.ViewModels.OrderListViewModel
+@using SoftCo.Models
+@{
+    ViewData["Title"] = "Outstanding";
+    ViewData["Description"] = "A clear view of unsettled orders and missing invoices.";
+}
+
+<div class="sc-kpis">
+    <div class="sc-kpi">
+        <p class="sc-label">Owed to suppliers</p>
+        <p class="sc-kpi-value">R @Model.TotalOutstandingZar.ToString("N2")</p>
+        <p class="sc-kpi-caption">Based on recorded invoices and payments</p>
+    </div>
+    <div class="sc-kpi">
+        <p class="sc-label">Unsettled orders</p>
+        <p class="sc-kpi-value">@Model.Rows.Count.ToString("D2")</p>
+        <p class="sc-kpi-caption">Including orders awaiting an invoice</p>
+    </div>
+    <div class="sc-kpi">
+        <p class="sc-label">Awaiting invoice</p>
+        <p class="sc-kpi-value">@Model.Rows.Count(r => r.InvoiceValueForeign <= 0).ToString("D2")</p>
+        <p class="sc-kpi-caption">Invoice value still to be captured</p>
+    </div>
+</div>
+
+<div class="sc-section-heading"><div><h2>Settlement worklist</h2><span class="sc-count">@Model.Rows.Count orders</span></div><a asp-action="Index">View all orders</a></div>
+@if (Model.Rows.Count == 0)
+{
+    <div class="sc-order-panel sc-empty"><h2>No unsettled orders</h2><p>All recorded orders are settled, or no orders have been added yet.</p></div>
+}
+else
+{
+    <p class="sc-worklist-note">Review each order's invoice and payment history before recording a settlement.</p>
+}
+
+@foreach (var group in Model.Rows.GroupBy(r => r.Supplier).OrderByDescending(g => g.Sum(r => r.OutstandingZar)))
+{
+    <div class="sc-card">
+        <div class="sc-card-head">
+            <p class="sc-label" style="margin-bottom:0">@group.Key</p>
+            <strong>R @group.Sum(r => r.OutstandingZar).ToString("N2")</strong>
+        </div>
+        <div class="sc-table-wrap">
+            <table class="sc-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Project</th>
+                        <th>Invoice</th>
+                        <th>Delivery</th>
+                        <th class="sc-num">Outstanding (ZAR)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var r in group.OrderByDescending(r => r.OutstandingZar))
+                {
+                    <tr>
+                        <td><a asp-action="Details" asp-route-id="@r.Id">@r.Product</a></td>
+                        <td class="sc-muted">@r.Projects</td>
+                        <td class="sc-muted">@(r.InvoiceRef ?? "—")</td>
+                        <td><span class="sc-stage">@((int)r.Fulfilment)</span> @r.Fulfilment.Label()</td>
+                        <td class="sc-num">@(r.InvoiceValueForeign > 0 ? r.OutstandingZar.ToString("N2") : "Awaiting invoice")</td>
+                        <td>@if (r.InvoiceValueForeign > 0) { @await Html.PartialAsync("_SettlementBadge", r.Settlement) } else { <span class="sc-muted">Not invoiced</span> }</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

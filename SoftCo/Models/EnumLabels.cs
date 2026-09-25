@@ -1,0 +1,40 @@
+namespace SoftCo.Models;
+
+/// <summary>
+/// Display names for the status enums. The fulfilment labels match the wording Soft &amp; Co.
+/// already use in the tracker, so the screen reads the way the spreadsheet does.
+/// </summary>
+public static class EnumLabels
+{
+    public static string Label(this FulfilmentStatus s) => s switch
+    {
+        FulfilmentStatus.InProduction => "In Production",
+        FulfilmentStatus.Testing => "Testing",
+        FulfilmentStatus.Shipping => "Shipping",
+        FulfilmentStatus.Clearance => "Clearance",
+        FulfilmentStatus.Delivered => "Delivered",
+        _ => s.ToString()
+    };
+
+    public static string Label(this SettlementStatus s) => s switch
+    {
+        SettlementStatus.Unpaid => "Outstanding",
+        SettlementStatus.PartPaid => "Part paid",
+        SettlementStatus.Paid => "Paid",
+        _ => s.ToString()
+    };
+
+    public static string Label(this SupplierType t) => t switch
+    {
+        SupplierType.Manufacturer => "Manufacturer",
+        SupplierType.ServiceProvider => "Service provider",
+        _ => t.ToString()
+    };
+
+    public static string Label(this PaymentKind k) => k switch
+    {
+        PaymentKind.Deposit => "Deposit",
+        PaymentKind.Settlement => "Settlement",
+        _ => k.ToString()
+    };
+}
