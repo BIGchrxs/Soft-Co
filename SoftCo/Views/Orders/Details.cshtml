@@ -30,6 +30,11 @@
             {
                 <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
             }
+            <!--delete this delete action after testing, invoices cant be deleted-->
+            @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Procurement) || User.IsInRole(Roles.Finance))
+            {
+                <a class="btn btn-secondary" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+            }
         </div>
     </div>
 

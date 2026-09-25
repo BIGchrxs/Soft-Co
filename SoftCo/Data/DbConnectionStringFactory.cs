@@ -21,8 +21,9 @@ public static class DbConnectionStringFactory
                 "environment variable ConnectionStrings__DefaultConnection, sourced from AWS " +
                 "Secrets Manager) before the first run in a non-Development environment.");
 
-        // Local dev convenience only, matching docker-compose.yml's postgres service, so that
-        // `docker compose up` followed by `dotnet run` works with no further configuration.
-        return "Host=localhost;Port=5432;Database=softco;Username=softco;Password=softco_dev_only";
+        // Local development defaults match docker-compose.yml's PostgreSQL service.
+        // Host port 5433 keeps this database separate from other local PostgreSQL projects.
+        // Containers still reach PostgreSQL on its internal port 5432.
+        return "Host=localhost;Port=5433;Database=softco;Username=softco;Password=softco_dev_only";
     }
 }

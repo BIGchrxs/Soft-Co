@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SoftCo.Data;
 using SoftCo.Models;
 using SoftCo.Services;
+using SoftCo.Services.ExchangeRates;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +62,25 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
+
+builder.Services.Configure<ExchangeRateOptions>(builder.Configuration.GetSection(ExchangeRateOptions.SectionName));
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddHttpClient("exchange-rates", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(8);
+    client.MaxResponseContentBufferSize = 65_536;
+})
+    // ExchangeRate-API puts its key in the URL path, so default HTTP request logging is unsafe.
+    .RemoveAllLoggers()
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        AllowAutoRedirect = false,
+        PooledConnectionLifetime = TimeSpan.FromMinutes(5)
+    });
+builder.Services.AddSingleton(sp => new ExchangeRateService(
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("exchange-rates"),
+    sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<ExchangeRateOptions>>(),
+    sp.GetRequiredService<TimeProvider>(), sp.GetRequiredService<ILogger<ExchangeRateService>>()));
 
 builder.Services.AddControllersWithViews();
 

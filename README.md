@@ -27,7 +27,9 @@ Requires the .NET 10 SDK and PostgreSQL. Configure `ConnectionStrings__DefaultCo
 dotnet run --project SoftCo/SoftCo.csproj --launch-profile https
 ```
 
-Use HTTPS at `https://localhost:7027` because authentication cookies require HTTPS. The default development connection uses the database configured in `docker-compose.yml`; override it if port 5432 belongs to another project. Migrations run at startup. Never use a production database for browser write tests.
+Use HTTPS at `https://localhost:7027` because authentication cookies require HTTPS. Start the local database with `docker compose -p softco up -d softco-db`. SoftCo uses host port **5433**, so another project's PostgreSQL can continue using 5432. The development fallback connects to `localhost:5433`; the Docker web service connects to `softco-db:5432` inside its network. The existing named database volume is retained when the container is recreated. Migrations run at startup. Never use a production database for browser write tests.
+
+If you set `ConnectionStrings:DefaultConnection` in .NET user secrets or `ConnectionStrings__DefaultConnection` in your environment, it overrides the development fallback: use port 5433 and the credentials belonging to the SoftCo database. Changing `POSTGRES_PASSWORD` in `.env` does not change a password already stored in a PostgreSQL volume.
 
 ## Verification
 

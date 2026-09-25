@@ -10,7 +10,8 @@ services:
       # ECS task definition and never appear in this file or in any environment checked into git.
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-softco_dev_only}"
     ports:
-      - "5432:5432"
+      # Dedicated loopback port for Visual Studio / dotnet run on the host.
+      - "127.0.0.1:5433:5432"
     volumes:
       - softco-db-data:/var/lib/postgresql/data
     healthcheck:
@@ -37,6 +38,7 @@ services:
       # file (gitignored) - copy .env.example to .env and fill it in.
       Seed__AdminPassword: "${SEED_ADMIN_PASSWORD:?Set SEED_ADMIN_PASSWORD in a .env file - copy .env.example to .env and fill it in}"
       Seed__AdminEmail: "${SEED_ADMIN_EMAIL:-admin@softandco.co.za}"
+      ExchangeRates__ApiKey: "${EXCHANGE_RATE_API_KEY:-}"
     ports:
       - "5280:8080"
     networks:

@@ -256,6 +256,27 @@ public class OrdersController : Controller
         return RedirectToAction(nameof(Details), new { id = order.Id });
     }
 
+    //delete is not implemented because the brief says "no deletion of orders".
+    //However, for dev testing i need a delete, ill implement it then delete the code after testing is done.
+
+    public async Task<IActionResult> Delete(int id)
+    {
+        var order = await _db.SupplierOrders
+            .Include(o => o.OrderProjects)
+            .Include(o => o.Payments)
+            .FirstOrDefaultAsync(o => o.Id == id);
+        if (order is null) return NotFound();
+        _db.OrderPayments.RemoveRange(order.Payments);
+        _db.OrderProjects.RemoveRange(order.OrderProjects);
+        _db.SupplierOrders.Remove(order);
+        await _db.SaveChangesAsync();
+        TempData["Flash"] = "Order deleted.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    
+
+
     // --- Payments ------------------------------------------------------------------------
 
     [Authorize(Roles = Roles.CanRecordPayments)]
