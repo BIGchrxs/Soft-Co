@@ -225,11 +225,13 @@ a:hover {
     color: var(--sc-beige-soft);
     margin-top: 0.55rem;
     display: block;
+
 }
 
 .sc-sidebar-body {
     padding: 1.5rem 0;
     flex: 1 1 auto;
+
 }
 
 .sc-nav-label {
@@ -240,12 +242,13 @@ a:hover {
     color: var(--sc-beige-soft);
     padding: 0 1.5rem;
     margin: 0 0 0.75rem;
+
 }
 
 .sc-nav {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0
 }
 
 .sc-nav a {
@@ -260,6 +263,7 @@ a:hover {
     border-bottom: 0;
     border-left: 2px solid transparent;
     transition: background-color 0.15s ease, border-color 0.15s ease;
+
 }
 
 .sc-nav a:hover {
@@ -300,6 +304,7 @@ a:hover {
     font-size: .7rem;
     color: var(--sc-ink-soft);
     border-bottom: 1px solid var(--sc-line);
+    
 }
 
 .sc-topbar-title {
@@ -307,6 +312,7 @@ a:hover {
     font-size: 1.35rem;
     color: var(--sc-accent);
     margin: 0;
+   
 }
 
 .sc-content {
@@ -630,7 +636,7 @@ a:hover {
 .sc-kpi {
     background-color: var(--sc-surface);
     border: 1px solid var(--sc-line);
-    border-radius: var(--sc-radius);
+    border-radius:  10px;
     padding: 1.3rem 1.4rem;
 }
 
